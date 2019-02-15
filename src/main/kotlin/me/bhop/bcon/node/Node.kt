@@ -1,6 +1,6 @@
 package me.bhop.bcon.node
 
-import java.lang.IllegalArgumentException
+import kotlin.IllegalArgumentException
 import kotlin.reflect.KProperty
 
 
@@ -14,11 +14,11 @@ abstract class Node(val id: String, val comments: MutableList<String> = mutableL
         return null
     }
 
-    fun getAsPrimitive(): PrimitiveNode? {
-        if (this is PrimitiveNode)
-            return this
-        return null
-    }
+//    fun getAsPrimitive(): PrimitiveNode<?>? {
+//        if (this is PrimitiveNode<>)
+//            return this
+//        return null
+//    }
 
     fun getAsArray(): ArrayNode? {
         if (this is ArrayNode)
@@ -31,7 +31,7 @@ abstract class Node(val id: String, val comments: MutableList<String> = mutableL
 
     fun isCategory(): Boolean = getAsCategory() == null
 
-    fun isPrimitive(): Boolean = getAsPrimitive() == null
+    //fun isPrimitive(): Boolean = getAsPrimitive() == null
 
     fun isArray(): Boolean = getAsArray() == null
 
@@ -51,4 +51,6 @@ abstract class Node(val id: String, val comments: MutableList<String> = mutableL
             parent = value
         }
     }
+
+
 }
