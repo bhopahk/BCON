@@ -9,8 +9,16 @@ class CategoryNode(id: String, comments: MutableList<String> = mutableListOf(), 
     }
 
     fun add(vararg path: String, node: Node) {
-        val target = if (path.isEmpty()) get(*path) else this
+        var target = if (path.isEmpty()) this else get(*path)
+        if (target == null) {
+            target = CategoryNode(path[0], parent = this)
+            children?.add(target)
+        }
         if (target is CategoryNode)
             target.add(node = node)
     }
+
+    fun add(): NodeBuilder = NodeBuilder(parent = this)
+
+    fun children(): List<Node> = ArrayList(children)
 }
