@@ -3,7 +3,7 @@ package me.bhop.bcon
 import me.bhop.bcon.node.*
 
 fun main(args: Array<String>) {
-    val parent = CategoryNode("test", parent = null)
+    val parent: Node = OrphanNode()
 
     val arr = ArrayNode("", parent = parent)
     arr.add(StringNode("coolname", parent = parent, value = "Test"))
@@ -11,6 +11,8 @@ fun main(args: Array<String>) {
     val idk: PrimitiveNode = StringNode("c", parent = parent, value = "Test2")
 
     val b: NodeBuilder = NodeBuilder().id("")
+
+    val x: OrphanNode
 
 
 }

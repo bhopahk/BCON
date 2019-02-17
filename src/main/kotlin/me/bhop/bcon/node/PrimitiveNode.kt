@@ -1,6 +1,6 @@
 package me.bhop.bcon.node
 
-sealed class PrimitiveNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node?) : Node(id, comments, parent) {
+sealed class PrimitiveNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node) : ChildNode(id, comments, parent) {
 
     open fun getAsString(): String? = null
     fun toStringNode(): StringNode? = if (this is StringNode) this else null
@@ -21,15 +21,15 @@ sealed class PrimitiveNode(id: String, comments: MutableList<String> = mutableLi
     open fun getAsShort(): Short? = null
 }
 
-class StringNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node?, private val value: String) : PrimitiveNode(id, comments, parent) {
+class StringNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: String) : PrimitiveNode(id, comments, parent) {
     override fun getAsString(): String? = value
 }
 
-class BooleanNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node?, private val value: Boolean) : PrimitiveNode(id, comments, parent) {
+class BooleanNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: Boolean) : PrimitiveNode(id, comments, parent) {
     override fun getAsBoolean(): Boolean? = value
 }
 
-class NumberNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node?, private val value: Number) : PrimitiveNode(id, comments, parent) {
+class NumberNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: Number) : PrimitiveNode(id, comments, parent) {
     override fun getAsNumber(): Number? = value
     override fun getAsInt(): Int? = value.toInt()
     override fun getAsDouble(): Double? = value.toDouble()

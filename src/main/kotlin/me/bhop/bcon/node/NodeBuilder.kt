@@ -3,38 +3,36 @@ package me.bhop.bcon.node
 class NodeBuilder(
     private var id: String? = null,
     private val comments: MutableList<String> = mutableListOf(),
-    private var parent: CategoryNode? = null
+    private var parent: Node? = null
 ) {
 
     fun id(id: String) = apply { this.id = id }
     fun comment(vararg comment: String) = apply { this.comments.addAll(comment) }
-    fun parent(node: CategoryNode?) = apply { this.parent = node }
+    fun parent(node: Node) = apply { this.parent = node }
 
     fun buildAsCategory(): CategoryNode {
-        validate()
-        return CategoryNode(id.orEmpty(), comments, parent)
+        val nid = id ?: throw IllegalStateException("Cannot build node with no id!")
+        val np = parent ?: throw IllegalStateException("Cannot build node with no parent!")
+        return CategoryNode(nid, comments, np)
     }
     fun buildAsArray(): ArrayNode {
-        validate()
-        return ArrayNode(id.orEmpty(), comments, parent)
+        val nid = id ?: throw IllegalStateException("Cannot build node with no id!")
+        val np = parent ?: throw IllegalStateException("Cannot build node with no parent!")
+        return ArrayNode(nid, comments, np)
     }
     fun buildAsPrimitive(value: String): PrimitiveNode {
-        validate()
-        return StringNode(id.orEmpty(), comments, parent, value)
+        val nid = id ?: throw IllegalStateException("Cannot build node with no id!")
+        val np = parent ?: throw IllegalStateException("Cannot build node with no parent!")
+        return StringNode(nid, comments, np, value)
     }
     fun buildAsPrimitive(value: Boolean): PrimitiveNode {
-        validate()
-        return BooleanNode(id.orEmpty(), comments, parent, value)
+        val nid = id ?: throw IllegalStateException("Cannot build node with no id!")
+        val np = parent ?: throw IllegalStateException("Cannot build node with no parent!")
+        return BooleanNode(nid, comments, np, value)
     }
     fun buildAsPrimitive(value: Number): PrimitiveNode {
-        validate()
-        return NumberNode(id.orEmpty(), comments, parent, value)
-    }
-
-    private fun validate() {
-        if (id.isNullOrEmpty())
-            throw IllegalStateException("Cannot build node with no id!")
-        if (parent == null)
-            throw IllegalStateException("Cannot build node with no parent!")
+        val nid = id ?: throw IllegalStateException("Cannot build node with no id!")
+        val np = parent ?: throw IllegalStateException("Cannot build node with no parent!")
+        return NumberNode(nid, comments, np, value)
     }
 }
