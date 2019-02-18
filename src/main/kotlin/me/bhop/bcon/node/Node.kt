@@ -10,8 +10,4 @@ abstract class Node(val id: String, val comments: MutableList<String> = mutableL
     fun isCategory(): Boolean = this is ParentNode
     fun isPrimitive(): Boolean = this is PrimitiveNode
     fun isArray(): Boolean = this is ArrayNode
-
-
-
-
 }
