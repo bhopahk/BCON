@@ -1,5 +1,6 @@
 package me.bhop.bcon
 
+import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import me.bhop.bcon.node.*
@@ -26,6 +27,7 @@ fun main(args: Array<String>) {
 //    println("Children")
 //    for (child in root.children)
 //        println("Child: ${child.id} | $child")
+
     val x = 10
     println("Running $x trials...")
     println("Bcon File: https://hastebin.com/poxikidigo.pl")
@@ -70,4 +72,3 @@ fun main(args: Array<String>) {
 //    val gson = JsonReader()
 
 }
-
