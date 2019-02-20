@@ -3,6 +3,7 @@ package me.bhop.bcon
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
+import me.bhop.bcon.lexer.BconLexer
 import me.bhop.bcon.node.*
 import java.io.File
 import java.nio.file.Files
@@ -28,47 +29,54 @@ fun main(args: Array<String>) {
 //    for (child in root.children)
 //        println("Child: ${child.id} | $child")
 
-    val x = 10
-    println("Running $x trials...")
-    println("Bcon File: https://hastebin.com/poxikidigo.pl")
-    println("Json File: https://hastebin.com/ofuyuxugiz.json")
-    println("--------------------")
-    var bTotal: Long = 0
-    var jTotal: Long = 0
-    for (i in 1..x) {
-        val bconStart = System.nanoTime()
-        Files.newBufferedReader(Paths.get("./bcon.conf")).use {
-            val bcon = BconReader()
-            val root = OrphanNode()
-            bcon.parseCategory(root, it.readText())
-        }
-        val bconTime = System.nanoTime()-bconStart
-        bTotal += bconTime
+//    val x = 10
+//    println("Running $x trials...")
+//    println("Bcon File: https://hastebin.com/poxikidigo.pl")
+//    println("Json File: https://hastebin.com/ofuyuxugiz.json")
+//    println("--------------------")
+//    var bTotal: Long = 0
+//    var jTotal: Long = 0
+//    for (i in 1..x) {
+//        val bconStart = System.nanoTime()
+//        Files.newBufferedReader(Paths.get("./bcon.conf")).use {
+//            val bcon = BconReader()
+//            val root = OrphanNode()
+//            bcon.parseCategory(root, it.readText())
+//        }
+//        val bconTime = System.nanoTime()-bconStart
+//        bTotal += bconTime
+//
+//        val jsonStart = System.nanoTime()
+//        Files.newBufferedReader(Paths.get("./json.json")).use {
+//            val json = JsonParser()
+//            val root = json.parse(it.readText()).asJsonObject
+//        }
+//        val jsonTime = System.nanoTime()-jsonStart
+//        jTotal += jsonTime
+//
+//        println("\t$i:")
+//        println("\tBcon: ${bconTime}ns")
+//        println("\tJson: ${jsonTime}ns")
+//        println("\tDiff: ${jsonTime-bconTime}ns")
+//        System.gc()
+//    }
+//
+//    bTotal /= x
+//    jTotal /= x
+//    println("Results:")
+//    println("Bcon Average: ${bTotal}ns | ${bTotal/1000000}ms")
+//    println("Json Average: ${jTotal}ns | ${jTotal/1000000}ms")
+//    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
 
-        val jsonStart = System.nanoTime()
-        Files.newBufferedReader(Paths.get("./json.json")).use {
-            val json = JsonParser()
-            val root = json.parse(it.readText()).asJsonObject
-        }
-        val jsonTime = System.nanoTime()-jsonStart
-        jTotal += jsonTime
+    val before = System.nanoTime()
+    Files.newBufferedReader(Paths.get("./bcon.conf")).use { BconLexer(it).lex() }
+    println("Time: ${(System.nanoTime()-before)/1000000}ms")
 
-        println("\t$i:")
-        println("\tBcon: ${bconTime}ns")
-        println("\tJson: ${jsonTime}ns")
-        println("\tDiff: ${jsonTime-bconTime}ns")
-        System.gc()
+    val jsonStart = System.nanoTime()
+    Files.newBufferedReader(Paths.get("./json.json")).use {
+        val json = JsonParser()
+        val root = json.parse(it.readText()).asJsonObject
     }
-
-    bTotal /= x
-    jTotal /= x
-    println("Results:")
-    println("Bcon Average: ${bTotal}ns | ${bTotal/1000000}ms")
-    println("Json Average: ${jTotal}ns | ${jTotal/1000000}ms")
-    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
-
-
-
-//    val gson = JsonReader()
-
+    val jsonTime = System.nanoTime()-jsonStart
+    println("JSON : ${jsonTime/1000000}ms")
 }
