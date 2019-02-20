@@ -1,4 +1,4 @@
-package me.bhop.bcon
+package me.bhop.bcon.io
 
 import me.bhop.bcon.node.*
 import java.nio.file.Path

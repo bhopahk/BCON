@@ -1,15 +1,8 @@
 package me.bhop.bcon
 
-import com.google.gson.Gson
-import com.google.gson.JsonArray
 import com.google.gson.JsonParser
-import com.google.gson.JsonPrimitive
-import com.google.gson.stream.JsonReader
-import me.bhop.bcon.lexer.BconLexer
-import me.bhop.bcon.node.*
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
+import me.bhop.bcon.io.BconParser
+import me.bhop.bcon.node.CategoryNode
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -70,17 +63,27 @@ fun main(args: Array<String>) {
 //    println("Json Average: ${jTotal}ns | ${jTotal/1000000}ms")
 //    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
 
+
+    System.gc()
+    val before = System.nanoTime()
+    val rootBcon = BconParser().fromBcon(test)
+    val time = (System.nanoTime()-before)/1000000
+    println("BCON NEW: ${time}ms")
+
 //    val jsonStart = System.nanoTime()
-//    val json = JsonParser()
-//    val root = json.parse(test2).asJsonObject
-//    val jsonTime = System.nanoTime()-jsonStart
-//    println("GSON : ${jsonTime/1000000}ms")
-//
-//    val before = System.nanoTime()
-//    //Files.newBufferedReader(Paths.get("./bcon.conf")).use {  }
-//    val lexer = BconLexer(test)
-//    lexer.lex()
-//    println("BCON NEW: ${(System.nanoTime()-before)/1000000}ms")
+//    val root = JsonParser().parse(test2).asJsonObject
+//    val jsonTime = (System.nanoTime()-jsonStart)/1000000
+//    println("GSON : ${jsonTime}ms")
+
+
+
+
+
+
+
+
+
+
 //
 //
 ////    Files.newBufferedReader(Paths.get("./json.json")).use {
@@ -89,12 +92,20 @@ fun main(args: Array<String>) {
 ////    }
 //
 //
+
+
+
+
 //    val bconStart = System.nanoTime()
 //    val root2 = OrphanNode()
 //    val bcon = BconReader()
 //    bcon.parseCategory(root2, test)
 //    val bconTime = System.nanoTime()-bconStart
 //    println("BCON OLD : ${bconTime/1000000}ms")
+
+
+
+
 //    Files.newBufferedReader(Paths.get("./bcon.conf")).use {
 //
 //
@@ -109,12 +120,22 @@ fun main(args: Array<String>) {
 
 
 
-    val root = BconParser().fromBcon()
-
-    println("\n\n\n")
-    for (node in root.children) {
-        println("$node")
-    }
+//    val root = BconParser().fromBcon(test)
+//
+//    println("\n\n\n")
+//    for (node in root.children) {
+//        println("$node // ${node.id}")
+//        if (node is CategoryNode) {
+//            for (child in node.children) {
+//                println("\t$child // ${child.id}")
+//                if (child is CategoryNode) {
+//                    for (child2 in child.children) {
+//                        println("\t\t$child2 // ${child2.id}")
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 

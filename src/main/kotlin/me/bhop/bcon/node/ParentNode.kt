@@ -9,10 +9,10 @@ interface ParentNode {
         var target = if (path.isEmpty()) return asNode() else children.firstOrNull { it.id == path[0] }
         if (target == null && create) {
             target = CategoryNode(path[0], parent = asNode())
-            add(node = target)
+            children.add(target)
         }
         if (target is CategoryNode)
-            return target.getAsCategory()?.get(*path.copyOfRange(1, path.size))
+            return target.getAsCategory()?.get(*path.copyOfRange(1, path.size), create = create)
         return target
     }
 
