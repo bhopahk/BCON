@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
 //
 //    val idk: PrimitiveNode = StringNode("c", parent = parent, value = "Test2")
 //
-//    val b: NodeBuilder = NodeBuilder().id("")
+//    val b: NodeBuilder = NodeBuilder().id("")d
 //
 //    val x: OrphanNode
 //    val reader = BconReader()
