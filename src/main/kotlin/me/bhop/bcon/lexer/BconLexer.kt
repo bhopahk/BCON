@@ -5,10 +5,10 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 
-class BconLexer(private val input: String, private var indexer: Boolean = true) : Iterator<Token> {
+class BconLexer(private val input: String, var indexer: Boolean = true) : Iterator<Token> {
     constructor(reader: BufferedReader, indexer: Boolean = true) : this(reader.lines().collect(Collectors.joining("\n")), indexer)
-    private val tokens: MutableList<Token> = mutableListOf()
-    private var cursor = 0
+    internal val tokens: MutableList<Token> = mutableListOf()
+    private var cursor = -1
 
     override fun next(): Token = tokens[cursor++]
     override fun hasNext(): Boolean = cursor < tokens.size
@@ -19,10 +19,8 @@ class BconLexer(private val input: String, private var indexer: Boolean = true) 
     fun peekAhead(amount: Int = 1): Token = tokens[cursor + amount]
     fun canPeekAhead(amount: Int = 1): Boolean = cursor + amount < tokens.size
 
-    fun peekBehind(amount: Int = 1): Token = tokens[cursor - amount]
-    fun canPeekBehind(amount: Int = 1): Boolean = cursor - amount > 0
-
-    fun getAllTokens(): List<Token> = tokens
+    fun peekBehind(amount: Int = 2): Token = tokens[cursor - amount]
+    fun canPeekBehind(amount: Int = 2): Boolean = cursor - amount > 0
 
     fun lex() {
         cursor = 0
@@ -39,7 +37,7 @@ class BconLexer(private val input: String, private var indexer: Boolean = true) 
         while (matcher.find()) {
             for (type in Tokens.values()) {
                 if (matcher.group(type.name) != null) {
-                    val position = pos(matcher.start(type.name))
+                    val position = if (indexer) pos(matcher.start(type.name)) else Pair(-1, -1)
                     tokens.add(Token(type, matcher.group(type.name), position.first, position.second))
                 }
             }

@@ -1,7 +1,9 @@
 package me.bhop.bcon
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.google.gson.stream.JsonReader
 import me.bhop.bcon.lexer.BconLexer
 import me.bhop.bcon.node.*
@@ -68,40 +70,51 @@ fun main(args: Array<String>) {
 //    println("Json Average: ${jTotal}ns | ${jTotal/1000000}ms")
 //    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
 
-    val jsonStart = System.nanoTime()
-    val json = JsonParser()
-    val root = json.parse(test2).asJsonObject
-    val jsonTime = System.nanoTime()-jsonStart
-    println("GSON : ${jsonTime/1000000}ms")
-
-    val before = System.nanoTime()
-    //Files.newBufferedReader(Paths.get("./bcon.conf")).use {  }
-    val lexer = BconLexer(test)
-    lexer.lex()
-    println("BCON NEW: ${(System.nanoTime()-before)/1000000}ms")
-
-
-//    Files.newBufferedReader(Paths.get("./json.json")).use {
-//        val json = JsonParser()
+//    val jsonStart = System.nanoTime()
+//    val json = JsonParser()
+//    val root = json.parse(test2).asJsonObject
+//    val jsonTime = System.nanoTime()-jsonStart
+//    println("GSON : ${jsonTime/1000000}ms")
 //
-//    }
-
-
-    val bconStart = System.nanoTime()
-    val root2 = OrphanNode()
-    val bcon = BconReader()
-    bcon.parseCategory(root2, test)
-    val bconTime = System.nanoTime()-bconStart
-    println("BCON OLD : ${bconTime/1000000}ms")
+//    val before = System.nanoTime()
+//    //Files.newBufferedReader(Paths.get("./bcon.conf")).use {  }
+//    val lexer = BconLexer(test)
+//    lexer.lex()
+//    println("BCON NEW: ${(System.nanoTime()-before)/1000000}ms")
+//
+//
+////    Files.newBufferedReader(Paths.get("./json.json")).use {
+////        val json = JsonParser()
+////
+////    }
+//
+//
+//    val bconStart = System.nanoTime()
+//    val root2 = OrphanNode()
+//    val bcon = BconReader()
+//    bcon.parseCategory(root2, test)
+//    val bconTime = System.nanoTime()-bconStart
+//    println("BCON OLD : ${bconTime/1000000}ms")
 //    Files.newBufferedReader(Paths.get("./bcon.conf")).use {
 //
 //
 //
 //    }
 
-    for (token in lexer.getAllTokens())
-        println(token.toString().replace("\n", "\\n"))
+//    val lexer = BconLexer("key:\"value\"")
+//    lexer.lex()
+//    while (lexer.hasNext())
+//        println(lexer.next().toString().replace("\n", "\\n"))
 
+
+
+
+    val root = BconParser().fromBcon()
+
+    println("\n\n\n")
+    for (node in root.children) {
+        println("$node")
+    }
 }
 
 
