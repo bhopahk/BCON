@@ -68,15 +68,169 @@ fun main(args: Array<String>) {
 //    println("Json Average: ${jTotal}ns | ${jTotal/1000000}ms")
 //    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
 
-    val before = System.nanoTime()
-    Files.newBufferedReader(Paths.get("./bcon.conf")).use { BconLexer(it).lex() }
-    println("Time: ${(System.nanoTime()-before)/1000000}ms")
-
     val jsonStart = System.nanoTime()
-    Files.newBufferedReader(Paths.get("./json.json")).use {
-        val json = JsonParser()
-        val root = json.parse(it.readText()).asJsonObject
-    }
+    val json = JsonParser()
+    val root = json.parse(test2).asJsonObject
     val jsonTime = System.nanoTime()-jsonStart
-    println("JSON : ${jsonTime/1000000}ms")
+    println("GSON : ${jsonTime/1000000}ms")
+
+    val before = System.nanoTime()
+    //Files.newBufferedReader(Paths.get("./bcon.conf")).use {  }
+    val lexer = BconLexer(test)
+    lexer.lex()
+    println("BCON NEW: ${(System.nanoTime()-before)/1000000}ms")
+
+
+//    Files.newBufferedReader(Paths.get("./json.json")).use {
+//        val json = JsonParser()
+//
+//    }
+
+
+    val bconStart = System.nanoTime()
+    val root2 = OrphanNode()
+    val bcon = BconReader()
+    bcon.parseCategory(root2, test)
+    val bconTime = System.nanoTime()-bconStart
+    println("BCON OLD : ${bconTime/1000000}ms")
+//    Files.newBufferedReader(Paths.get("./bcon.conf")).use {
+//
+//
+//
+//    }
+
+    for (token in lexer.getAllTokens())
+        println(token.toString().replace("\n", "\\n"))
+
 }
+
+
+val test: String = "\n" +
+        "# comment up here too!\n" +
+        "category {\n" +
+        "  option-in-category: \"I am an option with both spaces and illegal characters!\"\n" +
+        "  option-2: IAmAnOptionWithNoSpacesOrIllegalCharacters\n" +
+        "\n" +
+        "  subcategory {\n" +
+        "    this: \"counts as a subcategory! It would be accessed with the path 'category.subcategory.this'\"\n" +
+        "  }\n" +
+        "  \"this value\": \"that value\"\n" +
+        "\n" +
+        "  cat-list: [\n" +
+        "    1\n" +
+        "    5\n" +
+        "    6\n" +
+        "    3\n" +
+        "  ]\n" +
+        "\n" +
+        "  second-sub {\n" +
+        "    i: \"am another cool value for testing...\"\n" +
+        "  }\n" +
+        "}\n" +
+        "\n" +
+        "# 123c awd awdaw\n" +
+        "optionInRoot: ABCDEFG\n" +
+        "option2InRoot: 10\n" +
+        "\n" +
+        "list: [\n" +
+        "  1\n" +
+        "  2\n" +
+        "  3\n" +
+        "  4\n" +
+        "  5\n" +
+        "]\n" +
+        "\n" +
+        "# WHY ARE THESE NOT WORKING!!!!\n" +
+        "list2: [\"test1\", \"test2\", \"test3\"]\n" +
+        "\n" +
+        "# I am a comment!\n" +
+        "# I too, am a comment\n" +
+        "list3: [\n" +
+        "  1,\n" +
+        "  2,\n" +
+        "  3,\n" +
+        "  4,\n" +
+        "  5\n" +
+        "]\n" +
+        "\n" +
+        "category.option-3:\"This is an option in the the above category.\"\n" +
+        "\n" +
+        "# comments for days\n" +
+        "category.subcategory_2: {\n" +
+        "  this: \"is a another sub category inside the 'category' category.\"\n" +
+        "  otherList: [\n" +
+        "    \"I\",\n" +
+        "    \"feel\"\n" +
+        "    \"like\"\n" +
+        "    \"this\"\n" +
+        "    \"will\"\n" +
+        "    \"not\"\n" +
+        "    \"work\"\n" +
+        "  ]\n" +
+        "}\n" +
+        "\n" +
+        "# :O another comment\n" +
+        "it-is-also: \"valid to have options at the root of the project.\"\n" +
+        "\n" +
+        "additionally { it: \"is ok to have the entire file on one line!\", however: \"it does require a comma to separate the values if they are on the same line.\", even-further { it: \"is ok to have sub categories too\" } }\n" +
+        "\n" +
+        "another-key {\n" +
+        "is: \"that indentation means nothing!\",\n" +
+        "  additionally: \"it is ok to use commas if you want\"\n" +
+        "  but: \"you definately do not have to use them...\"\n" +
+        "}"
+val test2 = "{\n" +
+        "  \"category\": {\n" +
+        "    \"option-in-category\": \"I am an option with both spaces and illegal characters!\",\n" +
+        "    \"option-2\": \"IAmAnOptionWithNoSpacesOrIllegalCharacters\",\n" +
+        "    \"subcategory\": {\n" +
+        "      \"this\": \"counts as a subcategory! It would be accessed with the path 'category.subcategory.this'\"\n" +
+        "    },\n" +
+        "    \"cat-list\": [\n" +
+        "      1,\n" +
+        "      5,\n" +
+        "      6,\n" +
+        "      3\n" +
+        "    ],\n" +
+        "    \"second-sub\": {\n" +
+        "      \"i\": \"am another cool value for testing...\"\n" +
+        "    },\n" +
+        "    \"option-3\": \"This is an option in the the above category.\",\n" +
+        "    \"subcategory_2\": {\n" +
+        "      \"this\": \"is a another sub category inside the 'category' category.\",\n" +
+        "      \"otherList\": [\n" +
+        "        \"I\",\n" +
+        "        \"feel\",\n" +
+        "        \"like\",\n" +
+        "        \"this\",\n" +
+        "        \"will\",\n" +
+        "        \"not\",\n" +
+        "        \"work\"\n" +
+        "      ]\n" +
+        "    }\n" +
+        "  },\n" +
+        "  \"optionInRoot\": \"ABCDEFG\",\n" +
+        "  \"option2InRoot\": 10,\n" +
+        "  \"list\": [\n" +
+        "    1,\n" +
+        "    2,\n" +
+        "    3,\n" +
+        "    4,\n" +
+        "    5\n" +
+        "  ],\n" +
+        "  \"list2\": [\"test1\", \"test2\", \"test3\"],\n" +
+        "  \"list3\": [\n" +
+        "    1,\n" +
+        "    2,\n" +
+        "    3,\n" +
+        "    4,\n" +
+        "    5\n" +
+        "  ],\n" +
+        "  \"it-is-also\": \"valid to have options at the root of the project.\",\n" +
+        "  \"additionally\": { \"it\": \"is ok to have the entire file on one line!\", \"however\": \"it does require a comma to separate the values if they are on the same line.\", \"even-further\": { \"it\": \"is ok to have sub categories too\" } },\n" +
+        "  \"another-key\": {\n" +
+        "    \"is\": \"that indentation means nothing!\",\n" +
+        "    \"additionally\": \"it is ok to use commas if you want\",\n" +
+        "    \"but\": \"you definately do not have to use them...\"\n" +
+        "  }\n" +
+        "}"

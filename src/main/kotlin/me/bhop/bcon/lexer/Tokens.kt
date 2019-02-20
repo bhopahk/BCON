@@ -1,15 +1,16 @@
 package me.bhop.bcon.lexer
 
 enum class Tokens(val pattern: String) {
-    // Whitespace first b/c it doesnt matter
+    // Whitespace and comments first because they do not have conflicts with other elements.
     WHITESPACE("[ \t]+"),
+    COMMENT("#[^\n]+"),
 
     // Values second because number and boolean need to override identifier
     NUMBER("[0-9]+"),
     BOOLEAN("true|false"),
 
     STRINGQUOTED("\"[^\"]*\""),
-    STRINGLITERAL("[a-zA-Z0-9]+"),
+    STRINGLITERAL("[^: \\[\\]{}\n,]+"),
 
     // Key/Value organization can go last
 
