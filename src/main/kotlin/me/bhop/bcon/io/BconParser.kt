@@ -1,17 +1,20 @@
 package me.bhop.bcon.io
 
+import me.bhop.bcon.exception.BconExceptionFactory
 import me.bhop.bcon.lexer.BconLexer
 import me.bhop.bcon.lexer.Token
 import me.bhop.bcon.lexer.Tokens
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
 import me.bhop.bcon.node.ParentNode
+import java.io.Reader
+import java.util.stream.Collectors
 
 class BconParser {
 
+    fun fromBcon(reader: Reader, fileName: String? = null): OrphanNode = fromBcon(reader.readLines().stream().collect(Collectors.joining("\n")), fileName)
 
-    fun fromBcon(text: String): OrphanNode {
-//        val text = Files.newBufferedReader(Paths.get("./bcon.conf")).readText()
+    fun fromBcon(text: String, fileName: String? = null): OrphanNode {
         val lexer = BconLexer(text)
         lexer.lex()
 
@@ -33,7 +36,6 @@ class BconParser {
             when(current.type) {
                 Tokens.WHITESPACE -> continue@loop
                 Tokens.COMMENT -> {
-                    println("Comment: $current")
                     comments.add(current.data)
                     continue@loop
                 }
@@ -59,23 +61,23 @@ class BconParser {
                             comments.clear()
                             continue@loop
                         }
-                        throw IllegalStateException("Detected invalid start of category!")
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal start of category - no associated key was found.", fileName, current)
                     } else if (current.data == "}") {
                         if (arrayType == null && type == NodeType.UNKNOWN && name == null && value == null && !seenColon) {
                             if (parent is CategoryNode) {
-                                parent = parent.parent.getAsCategory() ?: throw IllegalStateException("I dont think that this should happen!")
+                                parent = parent.parent.getAsCategory() ?: throw BconExceptionFactory.newParseException(text, "Unknown Error.", fileName, current)
                                 continue@loop
                             }
-                            throw IllegalStateException("Detected end of file before expected!")
+                            throw BconExceptionFactory.newParseException(text, "Detected end of file before expected!", fileName, current)
                         }
-                        throw IllegalStateException("Detected end of category before expected!")
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal end of category.", fileName, current)
                     } else if (current.data == "[") {
                         if (name != null && seenColon && current.type == Tokens.DOOR) {
                             type = NodeType.ARRAY
                             value = ""
                             continue@loop
                         }
-                        throw IllegalStateException("Detected invalid array opener!")
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal start of array - no associated key was found.", fileName, current)
                     }
                 }
                 else -> {}
@@ -95,7 +97,7 @@ class BconParser {
                 if (value == "")
                     arrayType = current.type
                 if (current.type.type != arrayType?.type)
-                    throw IllegalArgumentException("Arrays must contain all the same type!")
+                    throw BconExceptionFactory.newParseException(text, "Detected array value mismatch! ${current.type.type.name} != ${arrayType?.type}", fileName, current)
                 value += "${current.data}φ"
                 continue
             }
@@ -112,70 +114,6 @@ class BconParser {
                 seenColon = false
                 prefix.clear()
                 comments.clear()
-                continue
-            }
-
-            /*if (current.type == Tokens.SPLITTER && current.data == "." && name != null && !seenColon) {
-                prefix.add(name)
-                name = null
-                continue
-            }*/
-
-            /*if (current.type == Tokens.DOOR && current.data == "{") {
-                if (arrayType == null && type == NodeType.UNKNOWN && name != null && value == null) {
-                    val child = CategoryNode(name, mutableListOf(), parent.asNode())
-                    parent.add(*prefix.toTypedArray(), node = child) //todo remove quotes from Strings (might be doable with regex by changing the group)
-                    parent = child
-                    name = null
-                    seenColon = false
-                    prefix.clear()
-                    continue
-                }
-                throw IllegalStateException("Detected invalid start of category!")
-            }
-            if (current.type == Tokens.DOOR && current.data == "}") {
-                if (arrayType == null && type == NodeType.UNKNOWN && name == null && value == null && !seenColon) {
-                    if (parent is CategoryNode) {
-                        parent = parent.parent.getAsCategory()!! //todo remove !!
-                        continue
-                    }
-                    throw IllegalStateException("Detected end of file before expected!")
-                }
-                throw IllegalStateException("Detected end of category before expected!")
-            }*/
-
-
-            /*if (name != null && current.type == Tokens.SPLITTER && current.data == ":") {
-                seenColon = true
-                continue
-            }*/
-
-            /*if (name != null && seenColon && current.type == Tokens.DOOR && current.data == "[") {
-                type = NodeType.ARRAY
-                value = ""
-                continue
-            }*/
-            if (name != null && type == NodeType.ARRAY && current.type.primitive) {
-                if (value == "")
-                    arrayType = current.type
-                if (current.type != arrayType)
-                    if (!((current.type == Tokens.STRINGLITERAL && arrayType == Tokens.STRINGQUOTED) || (current.type == Tokens.STRINGQUOTED && arrayType == Tokens.STRINGLITERAL)))
-                        throw IllegalArgumentException("Arrays must contain all the same type!")
-                value += "${current.data}φ"
-                continue
-            }
-
-            if (type != NodeType.UNKNOWN && name != null && value != null) {
-                parent.add(node = if (type != NodeType.ARRAY) type.toNode(name, mutableListOf(), parent.asNode(), value)
-                    else if (current.type == Tokens.DOOR && current.data == "]" && arrayType != null) type.toNode(name, mutableListOf(), parent.asNode(), value, arrayType.type)
-                    else continue)
-
-                type = NodeType.UNKNOWN
-                arrayType = null
-                name = null
-                value = null
-                seenColon = false
-                prefix.clear()
                 continue
             }
         }

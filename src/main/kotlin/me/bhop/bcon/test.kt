@@ -1,7 +1,6 @@
 package me.bhop.bcon
 
 import me.bhop.bcon.io.BconParser
-import me.bhop.bcon.node.CategoryNode
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -63,11 +62,11 @@ fun main(args: Array<String>) {
 //    println("Difference: ${bTotal-jTotal}ns | ${(bTotal-jTotal)/1000000}ms (if positive, Bcon is slower)" )
 
 
-    System.gc()
-    val before = System.nanoTime()
-    val rootBcon = BconParser().fromBcon(test)
-    val time = (System.nanoTime()-before)/1000000
-    println("BCON NEW: ${time}ms")
+//    System.gc()
+//    val before = System.nanoTime()
+//    val rootBcon = BconParser().fromBcon(test)
+//    val time = (System.nanoTime()-before)/1000000
+//    println("BCON NEW: ${time}ms")
 
 //    val jsonStart = System.nanoTime()
 //    val root = JsonParser().parse(test2).asJsonObject
@@ -117,28 +116,28 @@ fun main(args: Array<String>) {
 //        println(lexer.next().toString().replace("\n", "\\n"))
 
 
-
+    //throw BconExceptionFactory.newParseException(test, "I am an error message", "bcon.conf", 3, 6)
 
     val root = BconParser().fromBcon(test)
-
-    println("\n\n\n")
-    for (node in root.children) {
-        println("$node // ${node.id}")
-        if (node is CategoryNode) {
-            for (child in node.children) {
-                println("\t$child // ${child.id}")
-                if (child is CategoryNode) {
-                    for (child2 in child.children) {
-                        println("\t\t$child2 // ${child2.id}")
-                    }
-                }
-            }
-        }
-    }
-
-    println("\nComments:")
-    for (comment in root.get("optionInRoot")!!.comments)
-        println(comment)
+//
+//    println("\n\n\n")
+//    for (node in root.children) {
+//        println("$node // ${node.id}")
+//        if (node is CategoryNode) {
+//            for (child in node.children) {
+//                println("\t$child // ${child.id}")
+//                if (child is CategoryNode) {
+//                    for (child2 in child.children) {
+//                        println("\t\t$child2 // ${child2.id}")
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    println("\nComments:")
+//    for (comment in root.get("optionInRoot")!!.comments)
+//        println(comment)
 }
 
 
