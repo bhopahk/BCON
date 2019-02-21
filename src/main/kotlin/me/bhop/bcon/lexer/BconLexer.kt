@@ -36,9 +36,12 @@ class BconLexer(private val input: String, var indexer: Boolean = true) : Iterat
         val matcher: Matcher = pattern.matcher(input)
         while (matcher.find()) {
             for (type in Tokens.values()) {
-                if (matcher.group(type.name) != null) {
+                var data = matcher.group(type.name)
+                if (data != null) {
+                    if (type == Tokens.STRINGQUOTED)
+                        data = data.substring(1, data.length - 1)
                     val position = if (indexer) pos(matcher.start(type.name)) else Pair(-1, -1)
-                    tokens.add(Token(type, matcher.group(type.name), position.first, position.second))
+                    tokens.add(Token(type, data, position.first, position.second))
                 }
             }
         }

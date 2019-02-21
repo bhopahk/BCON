@@ -1,6 +1,5 @@
 package me.bhop.bcon
 
-import com.google.gson.JsonParser
 import me.bhop.bcon.io.BconParser
 import me.bhop.bcon.node.CategoryNode
 
@@ -120,22 +119,26 @@ fun main(args: Array<String>) {
 
 
 
-//    val root = BconParser().fromBcon(test)
-//
-//    println("\n\n\n")
-//    for (node in root.children) {
-//        println("$node // ${node.id}")
-//        if (node is CategoryNode) {
-//            for (child in node.children) {
-//                println("\t$child // ${child.id}")
-//                if (child is CategoryNode) {
-//                    for (child2 in child.children) {
-//                        println("\t\t$child2 // ${child2.id}")
-//                    }
-//                }
-//            }
-//        }
-//    }
+    val root = BconParser().fromBcon(test)
+
+    println("\n\n\n")
+    for (node in root.children) {
+        println("$node // ${node.id}")
+        if (node is CategoryNode) {
+            for (child in node.children) {
+                println("\t$child // ${child.id}")
+                if (child is CategoryNode) {
+                    for (child2 in child.children) {
+                        println("\t\t$child2 // ${child2.id}")
+                    }
+                }
+            }
+        }
+    }
+
+    println("\nComments:")
+    for (comment in root.get("optionInRoot")!!.comments)
+        println(comment)
 }
 
 

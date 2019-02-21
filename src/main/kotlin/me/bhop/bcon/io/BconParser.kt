@@ -3,13 +3,12 @@ package me.bhop.bcon.io
 import me.bhop.bcon.lexer.BconLexer
 import me.bhop.bcon.lexer.Token
 import me.bhop.bcon.lexer.Tokens
-import me.bhop.bcon.node.*
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.text.NumberFormat
-import kotlin.IllegalStateException
+import me.bhop.bcon.node.CategoryNode
+import me.bhop.bcon.node.OrphanNode
+import me.bhop.bcon.node.ParentNode
 
-class BconParser() {
+class BconParser {
+
 
     fun fromBcon(text: String): OrphanNode {
 //        val text = Files.newBufferedReader(Paths.get("./bcon.conf")).readText()
@@ -22,6 +21,7 @@ class BconParser() {
         // Current Element being constructed
         var arrayType: Tokens? = null
         var type: NodeType = NodeType.UNKNOWN
+        val comments: MutableList<String> = mutableListOf()
         val prefix: MutableList<String> = mutableListOf()
         var name: String? = null
         var value: String? = null
@@ -32,6 +32,11 @@ class BconParser() {
             current = lexer.next()
             when(current.type) {
                 Tokens.WHITESPACE -> continue@loop
+                Tokens.COMMENT -> {
+                    println("Comment: $current")
+                    comments.add(current.data)
+                    continue@loop
+                }
                 Tokens.SPLITTER -> {
                     if (current.data == "." && name != null && !seenColon) {
                         prefix.add(name)
@@ -45,19 +50,20 @@ class BconParser() {
                 Tokens.DOOR -> {
                     if (current.data == "{") {
                         if (arrayType == null && type == NodeType.UNKNOWN && name != null && value == null) {
-                            val child = CategoryNode(name, mutableListOf(), parent.asNode())
-                            parent.add(*prefix.toTypedArray(), node = child) //todo remove quotes from Strings (might be doable with regex by changing the group)
+                            val child = CategoryNode(name, ArrayList(comments), parent.asNode())
+                            parent.add(*prefix.toTypedArray(), node = child)
                             parent = child
                             name = null
                             seenColon = false
                             prefix.clear()
+                            comments.clear()
                             continue@loop
                         }
                         throw IllegalStateException("Detected invalid start of category!")
                     } else if (current.data == "}") {
                         if (arrayType == null && type == NodeType.UNKNOWN && name == null && value == null && !seenColon) {
                             if (parent is CategoryNode) {
-                                parent = parent.parent.getAsCategory()!! //todo remove !!
+                                parent = parent.parent.getAsCategory() ?: throw IllegalStateException("I dont think that this should happen!")
                                 continue@loop
                             }
                             throw IllegalStateException("Detected end of file before expected!")
@@ -72,11 +78,42 @@ class BconParser() {
                         throw IllegalStateException("Detected invalid array opener!")
                     }
                 }
-                else -> {
-
-                }
+                else -> {}
             }
 
+            if (name == null && current.type.type == NodeType.PRIMITIVE_STRING) {
+                name = current.data
+                continue
+            }
+            if (type != NodeType.ARRAY && name != null && current.type.primitive) {
+                if (seenColon) {
+                    type = current.type.type
+                    value = current.data
+                }
+            }
+            if (name != null && type == NodeType.ARRAY && current.type.primitive) {
+                if (value == "")
+                    arrayType = current.type
+                if (current.type.type != arrayType?.type)
+                    throw IllegalArgumentException("Arrays must contain all the same type!")
+                value += "${current.data}φ"
+                continue
+            }
+
+            if (type != NodeType.UNKNOWN && name != null && value != null) {
+                parent.add(node = if (type != NodeType.ARRAY) type.toNode(name, ArrayList(comments), parent.asNode(), value)
+                else if (current.type == Tokens.DOOR && current.data == "]" && arrayType != null) type.toNode(name, ArrayList(comments), parent.asNode(), value, arrayType.type)
+                else continue)
+
+                type = NodeType.UNKNOWN
+                arrayType = null
+                name = null
+                value = null
+                seenColon = false
+                prefix.clear()
+                comments.clear()
+                continue
+            }
 
             /*if (current.type == Tokens.SPLITTER && current.data == "." && name != null && !seenColon) {
                 prefix.add(name)
@@ -107,20 +144,12 @@ class BconParser() {
                 throw IllegalStateException("Detected end of category before expected!")
             }*/
 
-            if (name == null && current.type.type == NodeType.PRIMITIVE_STRING) {
-                name = current.data
-                continue
-            }
+
             /*if (name != null && current.type == Tokens.SPLITTER && current.data == ":") {
                 seenColon = true
                 continue
             }*/
-            if (type != NodeType.ARRAY && name != null && current.type.primitive) {
-                if (seenColon) {
-                    type = current.type.type
-                    value = current.data
-                }
-            }
+
             /*if (name != null && seenColon && current.type == Tokens.DOOR && current.data == "[") {
                 type = NodeType.ARRAY
                 value = ""
