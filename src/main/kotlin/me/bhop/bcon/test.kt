@@ -118,7 +118,7 @@ fun main(args: Array<String>) {
 
     //throw BconExceptionFactory.newParseException(test, "I am an error message", "bcon.conf", 3, 6)
 
-    val root = BconParser().fromBcon(test)
+    val root = BconParser().fromBcon(test, "test.conf")
 //
 //    println("\n\n\n")
 //    for (node in root.children) {
@@ -184,7 +184,7 @@ val test: String = "\n" +
         "list3: [\n" +
         "  1,\n" +
         "  2,\n" +
-        "  3,\n" +
+        "  3\n" +
         "  4,\n" +
         "  5\n" +
         "]\n" +
@@ -213,7 +213,7 @@ val test: String = "\n" +
         "another-key {\n" +
         "is: \"that indentation means nothing!\",\n" +
         "  additionally: \"it is ok to use commas if you want\"\n" +
-        "  but: \"you definately do not have to use them...\"\n" +
+        "  but: \"you definitely do not have to use them if you have a new line\"\n" +
         "}"
 val test2 = "{\n" +
         "  \"category\": {\n" +

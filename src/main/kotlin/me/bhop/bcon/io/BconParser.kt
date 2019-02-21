@@ -29,12 +29,17 @@ class BconParser {
         var name: String? = null
         var value: String? = null
         var seenColon = false
+        var seenSeparator = false
 
         var current: Token
         loop@while (lexer.hasNext()) {
             current = lexer.next()
             when(current.type) {
                 Tokens.WHITESPACE -> continue@loop
+                Tokens.SEPARATOR -> {
+                    seenSeparator = true
+                    continue@loop
+                }
                 Tokens.COMMENT -> {
                     comments.add(current.data)
                     continue@loop
@@ -66,6 +71,7 @@ class BconParser {
                         if (arrayType == null && type == NodeType.UNKNOWN && name == null && value == null && !seenColon) {
                             if (parent is CategoryNode) {
                                 parent = parent.parent.getAsCategory() ?: throw BconExceptionFactory.newParseException(text, "Unknown Error.", fileName, current)
+                                seenSeparator = false
                                 continue@loop
                             }
                             throw BconExceptionFactory.newParseException(text, "Detected end of file before expected!", fileName, current)
@@ -84,14 +90,18 @@ class BconParser {
             }
 
             if (name == null && current.type.type == NodeType.PRIMITIVE_STRING) {
-                name = current.data
-                continue
+                if (seenSeparator) {
+                    name = current.data
+                    continue
+                }
+                throw  BconExceptionFactory.newParseException(text, "Detected attempted key declaration without comma or new line! Note, this could be due to a string value with a space but no quotes.", fileName, current)
             }
             if (type != NodeType.ARRAY && name != null && current.type.primitive) {
                 if (seenColon) {
                     type = current.type.type
                     value = current.data
-                }
+                } else
+                    throw BconExceptionFactory.newParseException(text, "Detected value declaration without separator! (:)", fileName, current)
             }
             if (name != null && type == NodeType.ARRAY && current.type.primitive) {
                 if (value == "")
@@ -114,6 +124,7 @@ class BconParser {
                 seenColon = false
                 prefix.clear()
                 comments.clear()
+                seenSeparator = false
                 continue
             }
         }
