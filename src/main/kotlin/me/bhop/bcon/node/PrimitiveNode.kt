@@ -23,10 +23,12 @@ sealed class PrimitiveNode(id: String, comments: MutableList<String> = mutableLi
 
 class StringNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: String) : PrimitiveNode(id, comments, parent) {
     override fun getAsString(): String? = value
+    override fun toString(): String = "\"$value\""
 }
 
 class BooleanNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: Boolean) : PrimitiveNode(id, comments, parent) {
     override fun getAsBoolean(): Boolean? = value
+    override fun toString(): String = "$value"
 }
 
 class NumberNode(id: String, comments: MutableList<String> = mutableListOf(), parent: Node, private val value: Number) : PrimitiveNode(id, comments, parent) {
@@ -36,4 +38,5 @@ class NumberNode(id: String, comments: MutableList<String> = mutableListOf(), pa
     override fun getAsFloat(): Float? = value.toFloat()
     override fun getAsShort(): Short? = value.toShort()
     override fun getAsLong(): Long? = value.toLong()
+    override fun toString(): String = "$value"
 }

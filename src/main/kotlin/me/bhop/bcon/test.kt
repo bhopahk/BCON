@@ -1,6 +1,8 @@
 package me.bhop.bcon
 
-import me.bhop.bcon.io.BconParser
+import me.bhop.bcon.io.BconReader
+import me.bhop.bcon.io.BconWriter
+import java.nio.file.Paths
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -118,7 +120,8 @@ fun main(args: Array<String>) {
 
     //throw BconExceptionFactory.newParseException(test, "I am an error message", "bcon.conf", 3, 6)
 
-    val root = BconParser().fromBcon(test, "test.conf")
+    val root = BconReader().fromBcon(test, "test.conf")
+    BconWriter(prettyPrinting = true, printGeneratedHeader = false).toBcon(root, Paths.get("./wbcon.conf"))
 //
 //    println("\n\n\n")
 //    for (node in root.children) {

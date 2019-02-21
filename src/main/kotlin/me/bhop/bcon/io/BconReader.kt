@@ -1,177 +1,138 @@
 package me.bhop.bcon.io
 
-import me.bhop.bcon.node.*
-import java.nio.file.Path
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import me.bhop.bcon.exception.BconExceptionFactory
+import me.bhop.bcon.lexer.BconLexer
+import me.bhop.bcon.lexer.Token
+import me.bhop.bcon.lexer.Tokens
+import me.bhop.bcon.node.CategoryNode
+import me.bhop.bcon.node.OrphanNode
+import me.bhop.bcon.node.ParentNode
+import java.io.Reader
 import java.util.stream.Collectors
 
-//todo can use with(writer) when writing to the config
-class BconReader {
-    fun parseFile(path: Path): OrphanNode {
-        return OrphanNode()
-    }
+class BconReader(
+    private val pullComments: Boolean = true
+) {
 
-    fun parseCategory(parent: ParentNode, categoryStr: String) {
-        val categories: MutableList<String> = mutableListOf()
-        val quotes: MutableList<String> = mutableListOf()
+    fun fromBcon(reader: Reader, fileName: String? = null): OrphanNode = fromBcon(reader.readLines().stream().collect(Collectors.joining("\n")), fileName)
+
+    fun fromBcon(text: String, fileName: String? = null): OrphanNode {
+        val lexer = BconLexer(text)
+        lexer.lex()
+
+        // Current Parent
+        var parent: ParentNode = OrphanNode()
+
+        // Current Element being constructed
+        var arrayType: Tokens? = null
+        var type: NodeType = NodeType.UNKNOWN
         val comments: MutableList<String> = mutableListOf()
-        val arrays: MutableList<String> = mutableListOf()
+        val prefix: MutableList<String> = mutableListOf()
+        var name: String? = null
+        var value: String? = null
+        var seenColon = false
+        var seenSeparator = false
 
-        var category = categoryStr
-        if (category.startsWith('{'))
-            category = category.substring(1, category.length-1)
-
-        // Start Category Removal
-        var depth = 0
-        var cStart = category.indexOf('{')
-        var pointer = cStart + 1
-        while (category.indexOf('{') != -1) {
-            val open = category.indexOf('{', pointer)
-            val close = category.indexOf('}', pointer)
-
-            if (open != -1 && open < close) {
-                depth++
-                pointer = open + 1
-                continue
-            } else if (depth > 0) {
-                depth--
-                pointer = close + 1
-                continue
-            }
-
-            categories.add(category.substring(cStart, close + 1))
-
-            val before = category.substring(0, cStart).trim()
-            val after = category.substring(close + 1)
-            category = "$before${if (before[before.length-1] == ':') "" else ":"}${(categories.size-1).placeholderOf("\u03F5")} $after"
-            depth = 0
-            cStart = category.indexOf('{')
-            pointer = cStart + 1
-        }
-        // End Category Removal
-
-        // Start Quoted String Removal
-        var noquote = ""
-        var cursor = 0
-        val matcher: Matcher = Pattern.compile("(\"(.*?)\")").matcher(category)
-        while (matcher.find()) {
-            noquote += category.substring(cursor, matcher.start())
-            noquote += quotes.size.placeholderOf("\u03F6")
-            cursor = matcher.start()
-            quotes.add(category.substring(cursor, matcher.end()))
-            cursor = matcher.end()
-        }
-        category = "$noquote${category.substring(cursor, category.length)}"
-
-        // End Quoted String Removal
-
-        // Start Comment Removal
-        for (line in category.split("\n")) {
-            val c = line.split("#")
-            if (c.size >= 2) {
-                val comment = c.stream().skip(1).collect(Collectors.joining("#"))
-                comments.add(comment)
-                category = category.replace(comment, (comments.size - 1).placeholderOf("\u0394"))
-            }
-        }
-        // End Comment Removal
-
-        // Start Array Removal
-        while (category.contains('[')) {
-            val open = category.indexOf('[')
-            val close = category.indexOf(']')
-            arrays.add(category.substring(open, close + 1))
-
-            val start = category.substring(0, open).trim()
-            val end = category.substring(close + 1)
-            category = "$start${if (start[start.length - 1] == ':') "" else ":"}${(arrays.size - 1).placeholderOf("\u03B1")}$end"
-        }
-        // End Array Removal
-
-        // Start Remaining Normalization
-        while (category.contains(": "))
-            category = category.replace(": ", ":")
-        while (category.contains("\n\n"))
-            category = category.replace("\n\n", "\n")
-        while (category.contains(", "))
-            category = category.replace(", ", "\n")
-        // End Remaining Normalization
-
-        // Start Insert Quote Placeholders
-        for (i in 0 until quotes.size)
-            category = category.replace(i.placeholderOf("\u03F6"), quotes[i])
-        // End Insert Quote Placeholders
-
-        val lines = category.split("\n")
-        for (i in 0 until lines.size) {
-            val line = lines[i]
-            if (line.startsWith("#"))
-                continue
-            val lineComments: MutableList<String> = mutableListOf()
-            var j = 1
-            while ((i - j) >= 0 && lines[i - j].startsWith("#")) {
-                lineComments.add(comments[Integer.valueOf(lines[i - j].replace("#\u0394", "").trim())])
-                j++
-            }
-
-            val lineParts = line.split(":")
-            if (lineParts[0].contains(".")) {
-                val altParts = lineParts[0].split(".")
-                var alt = ""
-                for (comment in lineComments)
-                    alt += "$comment\n"
-                for (k in 1 until altParts.size)
-                    alt += "${altParts[k]}."
-                if (alt[alt.length - 1] == '.')
-                    alt = alt.substring(0, alt.length - 1)
-                alt += ":"
-                alt += if (lineParts[1].contains("\u03F5"))
-                    categories[Integer.valueOf(lineParts[1].replace("\u03F5", "").trim())]
-                else
-                    lineParts[1]
-                val child = CategoryNode(id = altParts[0].trim(), parent = parent.asNode())
-                parseCategory(child, alt)
-                parent.add(node = child)
-                continue
-            }
-
-            if (lineParts.size != 2)
-                continue
-
-            if (lineParts[1][0] == "\u03F5"[0]) {
-                val child = CategoryNode(lineParts[0].trim(), lineComments, parent.asNode())
-                parseCategory(child, categories[Integer.parseInt(lineParts[1].replace("\u03F5", "").trim())])
-                parent.add(node = child)
-            } else if (lineParts[1][0] == "\u03B1"[0]) {
-                val array = ArrayNode(lineParts[0].trim(), lineComments, parent.asNode())
-                val arrayStr = arrays[Integer.parseInt(lineParts[1].trim().replace("\u03B1", ""))]
-                    .replace("[", "")
-                    .replace("]", "")
-                    .replace(", ", "\n")
-                    .replace(",", "")
-                for (arrLine in arrayStr.split("\n")) {
-                    var ln = arrLine.trim()
-                    if (ln.isEmpty())
-                        continue
-                    if (ln.contains("\u03F6"))
-                        ln = quotes[Integer.parseInt(ln.replace("\u03F6", ""))].replace("\"", "")
-                    array.add(ln.toPrimitiveNode("_array", mutableListOf(), array))
+        var current: Token
+        loop@while (lexer.hasNext()) {
+            current = lexer.next()
+            when(current.type) {
+                Tokens.WHITESPACE -> continue@loop
+                Tokens.SEPARATOR -> {
+                    seenSeparator = true
+                    continue@loop
                 }
-                parent.add(node = array)
-            } else
-                parent.add(node = lineParts[1].toPrimitiveNode(lineParts[0].trim(), lineComments, parent.asNode()))
+                Tokens.COMMENT -> {
+                    if (pullComments)
+                        comments.add(current.data.substring(1).trim())
+                    continue@loop
+                }
+                Tokens.SPLITTER -> {
+                    if (current.data == "." && name != null && !seenColon) {
+                        prefix.add(name)
+                        name = null
+                        continue@loop
+                    } else if (current.data == ":" && name != null) {
+                        seenColon = true
+                        continue@loop
+                    }
+                }
+                Tokens.DOOR -> {
+                    if (current.data == "{") {
+                        if (arrayType == null && type == NodeType.UNKNOWN && name != null && value == null) {
+                            val child = CategoryNode(name, ArrayList(comments), parent.asNode())
+                            parent.add(*prefix.toTypedArray(), node = child)
+                            parent = child
+                            name = null
+                            seenColon = false
+                            prefix.clear()
+                            comments.clear()
+                            continue@loop
+                        }
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal start of category - no associated key was found.", fileName, current)
+                    } else if (current.data == "}") {
+                        if (arrayType == null && type == NodeType.UNKNOWN && name == null && value == null && !seenColon) {
+                            if (parent is CategoryNode) {
+                                parent = parent.parent.getAsCategory() ?: throw BconExceptionFactory.newParseException(text, "Unknown Error.", fileName, current)
+                                seenSeparator = false
+                                continue@loop
+                            }
+                            throw BconExceptionFactory.newParseException(text, "Detected end of file before expected!", fileName, current)
+                        }
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal end of category.", fileName, current)
+                    } else if (current.data == "[") {
+                        if (name != null && seenColon && current.type == Tokens.DOOR) {
+                            type = NodeType.ARRAY
+                            value = ""
+                            continue@loop
+                        }
+                        throw BconExceptionFactory.newParseException(text, "Detected illegal start of array - no associated key was found.", fileName, current)
+                    }
+                }
+                else -> {}
+            }
+
+            if (name == null && current.type.type == NodeType.PRIMITIVE_STRING) {
+                if (seenSeparator) {
+                    name = current.data
+                    continue
+                }
+                throw  BconExceptionFactory.newParseException(text, "Detected attempted key declaration without comma or new line! Note, this could be due to a string value with a space but no quotes.", fileName, current)
+            }
+            if (type != NodeType.ARRAY && name != null && current.type.primitive) {
+                if (seenColon) {
+                    type = current.type.type
+                    value = current.data
+                } else
+                    throw BconExceptionFactory.newParseException(text, "Detected value declaration without separator! (:)", fileName, current)
+            }
+            if (name != null && type == NodeType.ARRAY && current.type.primitive) {
+                if (value == "")
+                    arrayType = current.type
+                if (current.type.type != arrayType?.type)
+                    throw BconExceptionFactory.newParseException(text, "Detected array value mismatch! ${current.type.type.name} != ${arrayType?.type}", fileName, current)
+                value += "${current.data}φ"
+                continue
+            }
+
+            if (type != NodeType.UNKNOWN && name != null && value != null) {
+                parent.add(node = if (type != NodeType.ARRAY) type.toNode(name, ArrayList(comments), parent.asNode(), value)
+                else if (current.type == Tokens.DOOR && current.data == "]" && arrayType != null) type.toNode(name, ArrayList(comments), parent.asNode(), value, arrayType.type)
+                else continue)
+
+                type = NodeType.UNKNOWN
+                arrayType = null
+                name = null
+                value = null
+                seenColon = false
+                prefix.clear()
+                comments.clear()
+                seenSeparator = false
+                continue
+            }
         }
-    }
 
-    private fun Int.placeholderOf(prefix: String): String {
-        var placeholder = prefix
-        for (i in this.toString().length .. 2)
-            placeholder += "0"
-        return "$placeholder${this}"
-    }
-
-    private fun String.toPrimitiveNode(id: String, comments: MutableList<String>, parent: Node): PrimitiveNode {
-        return StringNode(id, comments, parent, this)
+        return if (parent is OrphanNode)
+            parent else throw IllegalStateException("Detected end of file before expected!")
     }
 }
