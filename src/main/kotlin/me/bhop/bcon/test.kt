@@ -121,7 +121,7 @@ fun main(args: Array<String>) {
     //throw BconExceptionFactory.newParseException(test, "I am an error message", "bcon.conf", 3, 6)
 
     val root = BconReader().fromBcon(test, "test.conf")
-    BconWriter(prettyPrinting = true, printGeneratedHeader = false).toBcon(root, Paths.get("./wbcon.conf"))
+    BconWriter(prettyPrinting = true).toBcon(root, Paths.get("./wbcon.conf"))
 //
 //    println("\n\n\n")
 //    for (node in root.children) {
