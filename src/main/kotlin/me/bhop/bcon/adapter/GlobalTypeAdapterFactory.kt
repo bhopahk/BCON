@@ -1,10 +1,17 @@
 package me.bhop.bcon.adapter
 
+import me.bhop.bcon.adapter.adapters.BooleanTypeAdapter
+import me.bhop.bcon.adapter.adapters.StringTypeAdapter
 import me.bhop.bcon.exception.TypeAdapterRegisteredException
 
 @Suppress("UNCHECKED_CAST")
 object GlobalTypeAdapterFactory : TypeAdapterFactory {
     private val adapters: MutableMap<Class<*>, TypeAdapter<*>> = mutableMapOf()
+
+    init {
+        adapters[String::class.java] = StringTypeAdapter()
+        adapters[Boolean::class.java] = BooleanTypeAdapter()
+    }
 
     override fun <T> register(adapter: TypeAdapter<T>, override: Boolean) = if (!adapters.containsKey(adapter.getType())) adapters[adapter.getType()] = adapter else
         throw TypeAdapterRegisteredException("Unable to register adapter for type '${adapter.getType().name}' because there is already a registered adapter and override is not enabled!")

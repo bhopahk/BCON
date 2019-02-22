@@ -1,8 +1,8 @@
 package me.bhop.bcon
 
-import me.bhop.bcon.io.BconReader
-import me.bhop.bcon.io.BconWriter
-import java.nio.file.Paths
+import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
+import me.bhop.bcon.node.CategoryNode
+import me.bhop.bcon.node.OrphanNode
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -120,23 +120,42 @@ fun main(args: Array<String>) {
 
     //throw BconExceptionFactory.newParseException(test, "I am an error message", "bcon.conf", 3, 6)
 
-    val root = BconReader().fromBcon(test, "test.conf")
-    BconWriter(prettyPrinting = true).toBcon(root, Paths.get("./wbcon.conf"))
+//    val root = BconReader().fromBcon(test, "test.conf")
+//    BconWriter(prettyPrinting = true).toBcon(root, Paths.get("./wbcon.conf"))
+
+    class testInner {
+        val someString = "Some_String that is long ish"
+        val someOtherStr = "dawdwa"
+    }
+
+    class testClass {
+        val name: String = "Bad Class"
+        val name2: String = "Bad Class Name 2"
+        val other: testInner = testInner()
+
+    }
+
+
+
+    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
+
+//    println("${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)} <- String")
+
 //
 //    println("\n\n\n")
-//    for (node in root.children) {
-//        println("$node // ${node.id}")
-//        if (node is CategoryNode) {
-//            for (child in node.children) {
-//                println("\t$child // ${child.id}")
-//                if (child is CategoryNode) {
-//                    for (child2 in child.children) {
-//                        println("\t\t$child2 // ${child2.id}")
-//                    }
-//                }
-//            }
-//        }
-//    }
+    for (node in root.children) {
+        println("$node // ${node.id}")
+        if (node is CategoryNode) {
+            for (child in node.children) {
+                println("\t$child // ${child.id}")
+                if (child is CategoryNode) {
+                    for (child2 in child.children) {
+                        println("\t\t$child2 // ${child2.id}")
+                    }
+                }
+            }
+        }
+    }
 //
 //    println("\nComments:")
 //    for (comment in root.get("optionInRoot")!!.comments)
