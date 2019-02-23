@@ -13,7 +13,7 @@ object GlobalTypeAdapterFactory : TypeAdapterFactory {
         adapters[Boolean::class.java] = BooleanTypeAdapter()
     }
 
-    override fun <T> register(adapter: TypeAdapter<T>, override: Boolean) = if (!adapters.containsKey(adapter.getType())) adapters[adapter.getType()] = adapter else
+    override fun <T> register(adapter: TypeAdapter<T>, override: Boolean) = if (!adapters.containsKey(adapter.getType())) adapters[adapter.getType()] = adapter else //todo perhaps use reflection to just get the generic type instead of having the getType method. would be cleaner
         throw TypeAdapterRegisteredException("Unable to register adapter for type '${adapter.getType().name}' because there is already a registered adapter and override is not enabled!")
 
     override fun <T> unregister(type: Class<T>): TypeAdapter<T>? = adapters.remove(type) as? TypeAdapter<T>?

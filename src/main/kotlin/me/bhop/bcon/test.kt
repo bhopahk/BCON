@@ -1,6 +1,8 @@
 package me.bhop.bcon
 
 import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
+import me.bhop.bcon.adapter.adapters.ListTypeAdapter
+import me.bhop.bcon.node.ArrayNode
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
 
@@ -123,6 +125,13 @@ fun main(args: Array<String>) {
 //    val root = BconReader().fromBcon(test, "test.conf")
 //    BconWriter(prettyPrinting = true).toBcon(root, Paths.get("./wbcon.conf"))
 
+    val list: List<Int> = listOf()
+//    println((list::class.java as ParameterizedType).actualTypeArguments[0])
+//    println("isstr: ${list is List<Number>}")
+
+    val listAdapter = ListTypeAdapter()
+    listAdapter.toBcon(Bcon(), list, OrphanNode(), "no idea", mutableListOf())
+
     class testInner {
         val someString = "Some_String that is long ish"
         val someOtherStr = "dawdwa"
@@ -132,8 +141,16 @@ fun main(args: Array<String>) {
         val name: String = "Bad Class"
         val name2: String = "Bad Class Name 2"
         val other: testInner = testInner()
+        val stringList0: List<String> = listOf("one", "two", "three")
+//        val stringList1: List<Boolean> = listOf(true, false)
+        val stringList2: List<Int> = listOf(1, 2, 3, 4, 5)
+        val stringList3: List<Double> = listOf(0.1, 2.5, 1.234)
+//        val stringList4: List<Short> = listOf()
+//        val stringList5: List<Long> = listOf()
+//        val stringList6: List<Float> = listOf()
 
     }
+
 
 
 
@@ -148,12 +165,22 @@ fun main(args: Array<String>) {
         if (node is CategoryNode) {
             for (child in node.children) {
                 println("\t$child // ${child.id}")
-//                if (child is CategoryNode) {
-//                    for (child2 in child.children) {
-//                        println("\t\t$child2 // ${child2.id}")
-//                    }
-//                }
+                if (child is CategoryNode) {
+                    for (child2 in child.children) {
+                        println("\t\t$child2 // ${child2.id}")
+                    }
+                }
+                if (child is ArrayNode) {
+                    println("Elements VVV")
+                    for (element in child)
+                        println("\t\t$element")
+                }
             }
+        }
+        if (node is ArrayNode) {
+//            println("Elements VVV")
+            for (element in node)
+                println("\t$element")
         }
     }
 //
