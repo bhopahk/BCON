@@ -1,6 +1,6 @@
 package me.bhop.bcon.exception
 
-import me.bhop.bcon.lexer.Token
+import me.bhop.bcon.io.lexer.Token
 
 object BconExceptionFactory {
     fun newParseException(text: String, message: String, fileName: String?, token: Token): TextParseException = BconExceptionFactory.newParseException(text, message, fileName, token.line, token.column)

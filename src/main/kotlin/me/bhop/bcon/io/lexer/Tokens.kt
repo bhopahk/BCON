@@ -1,4 +1,4 @@
-package me.bhop.bcon.lexer
+package me.bhop.bcon.io.lexer
 
 import me.bhop.bcon.io.NodeType
 

@@ -1,4 +1,4 @@
-package me.bhop.bcon.lexer
+package me.bhop.bcon.io.lexer
 
 import java.io.BufferedReader
 import java.util.regex.Matcher

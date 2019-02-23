@@ -148,11 +148,11 @@ fun main(args: Array<String>) {
         if (node is CategoryNode) {
             for (child in node.children) {
                 println("\t$child // ${child.id}")
-                if (child is CategoryNode) {
-                    for (child2 in child.children) {
-                        println("\t\t$child2 // ${child2.id}")
-                    }
-                }
+//                if (child is CategoryNode) {
+//                    for (child2 in child.children) {
+//                        println("\t\t$child2 // ${child2.id}")
+//                    }
+//                }
             }
         }
     }

@@ -8,26 +8,18 @@ import me.bhop.bcon.node.ParentNode
 
 object DefaultTypeAdapter : TypeAdapter<Any> {
     override fun toBcon(bcon: Bcon, t: Any, parent: ParentNode, id: String, comments: MutableList<String>): Node {
-        val root: ParentNode
-        if (parent != null)
-            root = parent
-        else
-            root = OrphanNode()
+        val root = OrphanNode()
         for (field in t::class.java.declaredFields) {
             field.isAccessible = true
             val fValue = field.get(t)
             val adapter = bcon.getTypeAdapter(fValue.javaClass, true)
-            if (adapter == null) {
-                println("*")
+            if (adapter == null)
                 root.add(node = (toBcon(bcon, field.get(t), root, field.name, mutableListOf()) as OrphanNode).toCategory(field.name, mutableListOf(), root)) //todo comments
-            } else {
+            else
                 root.add(node = adapter.toBcon(bcon, field.get(t), root, field.name, mutableListOf())) //todo no way to get comments without annotation, but should check for setting annotation in every case!
-                println("-${field.name}")
-            }
-
         }
 
-        return root.asNode()
+        return root
     }
 
     override fun fromBcon(bcon: Bcon, node: Node): Any {

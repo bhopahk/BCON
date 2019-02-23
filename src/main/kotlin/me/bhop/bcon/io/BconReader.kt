@@ -1,9 +1,9 @@
 package me.bhop.bcon.io
 
 import me.bhop.bcon.exception.BconExceptionFactory
-import me.bhop.bcon.lexer.BconLexer
-import me.bhop.bcon.lexer.Token
-import me.bhop.bcon.lexer.Tokens
+import me.bhop.bcon.io.lexer.BconLexer
+import me.bhop.bcon.io.lexer.Token
+import me.bhop.bcon.io.lexer.Tokens
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
 import me.bhop.bcon.node.ParentNode

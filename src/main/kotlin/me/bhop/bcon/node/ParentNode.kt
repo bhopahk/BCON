@@ -20,7 +20,7 @@ interface ParentNode {
         val target = if (path.isEmpty()) asNode() else get(*path, create = true)
         if (target is ParentNode) {
             val existing = target.get(node.id)
-            if (existing is CategoryNode && node is CategoryNode)
+            if (existing is CategoryNode && node is CategoryNode && existing != node)
                 existing.children.addAll(node.children)
             else {
                 if (existing != null)
