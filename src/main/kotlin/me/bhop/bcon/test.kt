@@ -1,5 +1,6 @@
 package me.bhop.bcon
 
+import me.bhop.bcon.adapter.TypeAdapter
 import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
 import me.bhop.bcon.adapter.adapters.ListTypeAdapter
 import me.bhop.bcon.node.ArrayNode
@@ -113,6 +114,21 @@ fun main(args: Array<String>) {
 //
 //
 //    }
+
+    val l: List<String> = ArrayList()
+    val lta = ListTypeAdapter()
+
+    val adapters: MutableMap<Class<*>, TypeAdapter<*>> = mutableMapOf()
+    adapters[lta.getType()] = lta
+
+    println(lta.getType())
+    println(l.javaClass)
+
+    println(adapters[l.javaClass])
+    if (adapters[l.javaClass] == lta)
+        println("Yeet")
+    else
+        println("Neet")
 
 //    val lexer = BconLexer("key:\"value\"")
 //    lexer.lex()
