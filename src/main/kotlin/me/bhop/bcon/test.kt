@@ -1,8 +1,7 @@
 package me.bhop.bcon
 
-import me.bhop.bcon.adapter.TypeAdapter
 import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
-import me.bhop.bcon.adapter.adapters.ListTypeAdapter
+import me.bhop.bcon.annotation.Setting
 import me.bhop.bcon.node.ArrayNode
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
@@ -115,20 +114,6 @@ fun main(args: Array<String>) {
 //
 //    }
 
-    val l: List<String> = ArrayList()
-    val lta = ListTypeAdapter()
-
-    val adapters: MutableMap<Class<*>, TypeAdapter<*>> = mutableMapOf()
-    adapters[lta.getType()] = lta
-
-    println(lta.getType())
-    println(l.javaClass)
-
-    println(adapters[l.javaClass])
-    if (adapters[l.javaClass] == lta)
-        println("Yeet")
-    else
-        println("Neet")
 
 //    val lexer = BconLexer("key:\"value\"")
 //    lexer.lex()
@@ -141,12 +126,9 @@ fun main(args: Array<String>) {
 //    val root = BconReader().fromBcon(test, "test.conf")
 //    BconWriter(prettyPrinting = true).toBcon(root, Paths.get("./wbcon.conf"))
 
-    val list: List<Int> = listOf()
 //    println((list::class.java as ParameterizedType).actualTypeArguments[0])
 //    println("isstr: ${list is List<Number>}")
 
-    val listAdapter = ListTypeAdapter()
-    listAdapter.toBcon(Bcon(), list, OrphanNode(), "no idea", mutableListOf())
 
     class testInner {
         val someString = "Some_String that is long ish"
@@ -157,6 +139,7 @@ fun main(args: Array<String>) {
         val name: String = "Bad Class"
         val name2: String = "Bad Class Name 2"
         val other: testInner = testInner()
+        @Setting("strlist")
         val stringList0: List<String> = listOf("one", "two", "three")
 //        val stringList1: List<Boolean> = listOf(true, false)
         val stringList2: List<Int> = listOf(1, 2, 3, 4, 5)
@@ -167,10 +150,14 @@ fun main(args: Array<String>) {
 
     }
 
+    data class tester(val a: String, val b: Int, val c: List<String>, val d: Boolean, val e: List<tester>)
 
 
+//    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
+    //val obj = InetSocketAddress("localhost", 25565)
+    val obj = tester("a cool string", 12345, listOf("a", "b", "c", "d", "e"), true, listOf(tester("a", 2, listOf("c"), false, listOf())))
 
-    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
+    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), obj, OrphanNode(), "useless id", mutableListOf()) as OrphanNode
 
 //    println("${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)} <- String")
 

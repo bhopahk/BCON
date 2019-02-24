@@ -10,8 +10,10 @@ object DefaultTypeAdapter : TypeAdapter<Any> {
     @Suppress("UNCHECKED_CAST")
     override fun toBcon(bcon: Bcon, t: Any, parent: ParentNode, id: String, comments: MutableList<String>): Node {
         val root = OrphanNode()
+        println("Running on ${t.javaClass.name}")
         fields@for (field in t::class.java.declaredFields) {
             field.isAccessible = true
+            println("\t${field.type}")
 
             val setting = field.getAnnotation(Setting::class.java)
             val fValue = field.get(t)
@@ -45,7 +47,21 @@ object DefaultTypeAdapter : TypeAdapter<Any> {
                     }
                     root.add(node = array)
                 }
-                adapter == null -> root.add(node = (toBcon(bcon, field.get(t), root, name, childComments) as OrphanNode).toCategory(id, childComments, root))
+                adapter == null -> {
+                    if (root == null)
+                        println("hello")
+                    if (field.get(t) == null)
+                        println("field")
+
+                    root.add(
+                        node = (
+                                this.toBcon(
+                                    bcon,
+                                    field.get(t),
+                                    root, name, childComments
+                                ) as OrphanNode).toCategory(id, childComments, root)
+                    )
+                }
                 else -> root.add(node = adapter.toBcon(bcon, field.get(t), root, name, childComments))
             }
         }
