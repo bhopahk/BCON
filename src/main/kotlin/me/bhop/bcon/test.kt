@@ -1,7 +1,6 @@
 package me.bhop.bcon
 
 import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
-import me.bhop.bcon.annotation.Setting
 import me.bhop.bcon.node.ArrayNode
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
@@ -129,40 +128,50 @@ fun main(args: Array<String>) {
 //    println((list::class.java as ParameterizedType).actualTypeArguments[0])
 //    println("isstr: ${list is List<Number>}")
 
-
-    class testInner {
-        val someString = "Some_String that is long ish"
-        val someOtherStr = "dawdwa"
-    }
-
-    class testClass {
-        val name: String = "Bad Class"
-        val name2: String = "Bad Class Name 2"
-        val other: testInner = testInner()
-        @Setting("strlist")
-        val stringList0: List<String> = listOf("one", "two", "three")
-//        val stringList1: List<Boolean> = listOf(true, false)
-        val stringList2: List<Int> = listOf(1, 2, 3, 4, 5)
-        val stringList3: List<Double> = listOf(0.1, 2.5, 1.234)
-//        val stringList4: List<Short> = listOf()
-//        val stringList5: List<Long> = listOf()
-//        val stringList6: List<Float> = listOf()
-
-    }
-
+//
+//    class testInner {
+//        val someString = "Some_String that is long ish"
+//        val someOtherStr = "dawdwa"
+//    }
+//
+//    class testClass {
+//        val name: String = "Bad Class"
+//        val name2: String = "Bad Class Name 2"
+//        val other: testInner = testInner()
+//        @Setting("strlist")
+//        val stringList0: List<String> = listOf("one", "two", "three")
+////        val stringList1: List<Boolean> = listOf(true, false)
+//        val stringList2: List<Int> = listOf(1, 2, 3, 4, 5)
+//        val stringList3: List<Double> = listOf(0.1, 2.5, 1.234)
+////        val stringList4: List<Short> = listOf()
+////        val stringList5: List<Long> = listOf()
+////        val stringList6: List<Float> = listOf()
+//
+//    }
+//
     data class tester(val a: String, val b: Int, val c: List<String>, val d: Boolean, val e: List<tester>)
 
 
 //    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
-    //val obj = InetSocketAddress("localhost", 25565)
-    val obj = tester("a cool string", 12345, listOf("a", "b", "c", "d", "e"), true, listOf(tester("a", 2, listOf("c"), false, listOf())))
-
+//    val obj = InetSocketAddress("localhost", 25565)
+    val l: List<String> = listOf("a", "b", "c", "d", "e")
+    println("GENERIC OF ${l.genericType().name}")
+    val obj = tester("a cool string", 12345, l, true, listOf(tester("a", 2, l, false, listOf())))
+//
     val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), obj, OrphanNode(), "useless id", mutableListOf()) as OrphanNode
+
+//    println("String adapter: ${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)}")
+
+//    for (field in obj::class.java.declaredFields) {
+//        field.isAccessible = true
+//        val value = field.get(obj)
+//        println("Field Type ${value::class.java.name} has adapter ${Bcon().getTypeAdapter(value::class.java)}")
+//    }
 
 //    println("${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)} <- String")
 
 //
-//    println("\n\n\n")
+    println("\n\n\n")
     for (node in root.children) {
         println("$node // ${node.id}")
         if (node is CategoryNode) {
@@ -190,8 +199,58 @@ fun main(args: Array<String>) {
 //    println("\nComments:")
 //    for (comment in root.get("optionInRoot")!!.comments)
 //        println(comment)
-}
 
+//    val list: Collection<String> = listOf()
+//    println(Arrays.toString(list::class.java.genericInterfaces))
+//
+//
+//    open class parent
+//
+//    class child : parent()
+//
+//    class trashcan {
+//        val str = "A string!"
+//        val d = 1.23456
+//        val i = 12345
+//        val list: List<String> = listOf("one", "two", "three")
+//        val list2 = ArrayList<String>()
+//        val coll: Collection<String> = list
+//    }
+
+//    class ParentTypeAdapter : TypeAdapter<parent> {
+//        override val type: Class<parent> = parent::class.java
+//
+//        override fun toBcon(
+//            bcon: Bcon,
+//            t: parent,
+//            parent: ParentNode,
+//            id: String,
+//            comments: MutableList<String>
+//        ): Node {
+//            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        }
+//
+//        override fun fromBcon(bcon: Bcon, node: Node): parent {
+//            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        }
+//
+//    }
+
+
+
+
+
+//    val tc = trashcan()
+//    for (field in trashcan::class.java.declaredFields) {
+//        println("'${field.name}' -> ${GlobalTypeAdapterFactory.getTypeAdapter(field.type)}")
+//    }
+
+
+
+}
+inline fun <reified T: Any> Collection<T>.genericType(): Class<T> {
+    return T::class.java
+}
 
 val test: String = "\n" +
         "# comment up here too!\n" +

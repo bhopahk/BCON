@@ -7,7 +7,7 @@ interface TypeAdapterFactory {
 
     fun <T> unregister(type: Class<T>): TypeAdapter<T>?
 
-    fun <T> getTypeAdapter(type: Class<T>, orGlobal: Boolean = true): TypeAdapter<T>?
+    fun <T> getTypeAdapter(type: Class<T>, orSuper: Boolean = true, orGlobal: Boolean = true): TypeAdapter<T>?
 
     fun getDefaultTypeAdapter(): TypeAdapter<Any> = DefaultTypeAdapter
 }
