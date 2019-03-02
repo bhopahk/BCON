@@ -7,11 +7,12 @@ import me.bhop.bcon.node.Node
 import me.bhop.bcon.node.OrphanNode
 import me.bhop.bcon.node.ParentNode
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
 
 object DefaultTypeAdapter : TypeAdapter<Any> {
     override val type: Class<Any> = Any::class.java
 
-    override fun toBcon(bcon: Bcon, t: Any, parent: ParentNode, id: String, comments: MutableList<String>): Node {
+    override fun toBcon(bcon: Bcon, t: Any, parent: ParentNode, id: String, comments: MutableList<String>, oType: Class<*>?): Node {
         val root = OrphanNode()
         for (field in t::class.java.declaredFields) {
             if (Modifier.isStatic(field.modifiers)) continue
@@ -27,10 +28,12 @@ object DefaultTypeAdapter : TypeAdapter<Any> {
 
             println("\tType ${value::class.java.name} has adapter $adapter")
 
+            val generic = (field?.genericType as? ParameterizedType)?.actualTypeArguments?.get(0)?.typeName
+
             if (adapter == null) {
-                root.add(node = (DefaultTypeAdapter.toBcon(bcon, value, root, name, childComments) as OrphanNode).toCategory(name, childComments, root))
+                root.add(node = (DefaultTypeAdapter.toBcon(bcon, value, root, name, childComments, if (generic != null) generic::class.java else null) as OrphanNode).toCategory(name, childComments, root))
             } else
-                root.add(node = adapter.toBcon(bcon, value, root, name, childComments))
+                root.add(node = adapter.toBcon(bcon, value, root, name, childComments, if (generic != null) generic::class.java else null))
         }
         return root
     }

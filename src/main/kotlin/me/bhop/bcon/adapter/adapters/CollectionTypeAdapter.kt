@@ -8,9 +8,17 @@ import me.bhop.bcon.node.*
 class CollectionTypeAdapter : TypeAdapter<Collection<Any>> {
     override val type: Class<Collection<Any>> = Class.forName("java.util.Collection") as Class<Collection<Any>>
 
-    override fun toBcon(bcon: Bcon, t: Collection<Any>, parent: ParentNode, id: String, comments: MutableList<String>): Node {
-        println("The generic of ${t.javaClass.name} is ${t.genericType().name}")
-        return when (t.genericType()) {
+    override fun toBcon(
+        bcon: Bcon,
+        t: Collection<Any>,
+        parent: ParentNode,
+        id: String,
+        comments: MutableList<String>,
+        oType: Class<*>?
+    ): Node {
+        if (oType == null)
+            throw RuntimeException("Failed to detect type of collection!")
+        return when (oType) {
             String::class.java -> {
                 val array = ArrayNode(id, comments, parent.asNode())
                 for (str in t as Collection<String>)
