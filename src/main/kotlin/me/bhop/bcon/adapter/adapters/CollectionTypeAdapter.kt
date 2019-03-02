@@ -43,8 +43,11 @@ class CollectionTypeAdapter : TypeAdapter<Collection<Any>> {
             else -> {
                 val category = CategoryNode(id, comments, parent.asNode())
                 val listOfColl = t.toList() //todo remove this list call
-                for (i in 0 until listOfColl.size)
-                    category.add(node = bcon.getTypeAdapter(t.genericType())?.toBcon(bcon, listOfColl[i], category, "$i", mutableListOf()) ?: bcon.getDefaultTypeAdapter().toBcon(bcon, listOfColl[i], category, "$i", mutableListOf())) //todo configurable options here and elsewhere
+                for (i in 0 until listOfColl.size) {
+                    val v = listOfColl[i]
+                    category.add(node = bcon.getDefaultTypeAdapter().toBcon(bcon, v, category, "$i", mutableListOf())) //todo configurable options here and elsewhere
+
+                }
                 parent.add(node = category)
                 category
             }

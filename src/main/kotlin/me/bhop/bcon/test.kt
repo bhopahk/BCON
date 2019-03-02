@@ -4,7 +4,6 @@ import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
 import me.bhop.bcon.node.ArrayNode
 import me.bhop.bcon.node.CategoryNode
 import me.bhop.bcon.node.OrphanNode
-import java.net.InetSocketAddress
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -150,14 +149,14 @@ fun main(args: Array<String>) {
 //
 //    }
 //
-    data class tester(val a: String, val b: Int, val c: List<String>, val d: Boolean/*, val e: List<tester>*/)
+    data class tester(val a: String, val b: Int, val c: List<String>, val d: Boolean, val e: List<tester>)
 
 
 //    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
-    val obj = InetSocketAddress("localhost", 25565)
+//    val obj = InetSocketAddress("localhost", 25565)
     val l: List<String> = listOf("a", "b", "c", "d", "e")
     println("GENERIC OF ${l.genericType().name}")
-//    val obj = tester("a cool string", 12345, l, true/*, listOf(tester("a", 2, l, false*//*, listOf()*//*)*//*)*/)
+    val obj = tester("a cool string", 12345, l, true, listOf(tester("a", 2, l, false, listOf())))
 //
     val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), obj, OrphanNode(), "useless id", mutableListOf()) as OrphanNode
 
