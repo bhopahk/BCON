@@ -1,9 +1,9 @@
 package me.bhop.bcon
 
 import me.bhop.bcon.adapter.adapters.DefaultTypeAdapter
-import me.bhop.bcon.node.ArrayNode
-import me.bhop.bcon.node.CategoryNode
+import me.bhop.bcon.io.BconWriter
 import me.bhop.bcon.node.OrphanNode
+import java.nio.file.Paths
 
 fun main(args: Array<String>) {
 //    val parent: Node = OrphanNode()
@@ -155,10 +155,12 @@ fun main(args: Array<String>) {
 //    val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), testClass(), OrphanNode(), "useless id", mutableListOf()) as OrphanNode
 //    val obj = InetSocketAddress("localhost", 25565)
     val l: List<String> = listOf("a", "b", "c", "d", "e")
-    println("GENERIC OF ${l.genericType().name}")
+//    println("GENERIC OF ${l.genericType().name}")
     val obj = tester("a cool string", 12345, l, true, listOf(tester("a", 2, l, false, listOf())))
 //
     val root: OrphanNode = DefaultTypeAdapter.toBcon(Bcon(), obj, OrphanNode(), "useless id", mutableListOf()) as OrphanNode
+
+    BconWriter().toBcon(root, Paths.get("./testbcon.conf"))
 
 //    println("String adapter: ${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)}")
 
@@ -171,30 +173,30 @@ fun main(args: Array<String>) {
 //    println("${GlobalTypeAdapterFactory.getTypeAdapter(String::class.java)} <- String")
 
 //
-    println("\n\n\n")
-    for (node in root.children) {
-        println("$node // ${node.id}")
-        if (node is CategoryNode) {
-            for (child in node.children) {
-                println("\t$child // ${child.id}")
-                if (child is CategoryNode) {
-                    for (child2 in child.children) {
-                        println("\t\t$child2 // ${child2.id}")
-                    }
-                }
-                if (child is ArrayNode) {
-                    println("Elements VVV")
-                    for (element in child)
-                        println("\t\t$element")
-                }
-            }
-        }
-        if (node is ArrayNode) {
-//            println("Elements VVV")
-            for (element in node)
-                println("\t$element")
-        }
-    }
+//    println("\n\n\n")
+//    for (node in root.children) {
+//        println("$node // ${node.id}")
+//        if (node is CategoryNode) {
+//            for (child in node.children) {
+//                println("\t$child // ${child.id}")
+//                if (child is CategoryNode) {
+//                    for (child2 in child.children) {
+//                        println("\t\t$child2 // ${child2.id}")
+//                    }
+//                }
+//                if (child is ArrayNode) {
+//                    println("Elements VVV")
+//                    for (element in child)
+//                        println("\t\t$element")
+//                }
+//            }
+//        }
+//        if (node is ArrayNode) {
+////            println("Elements VVV")
+//            for (element in node)
+//                println("\t$element")
+//        }
+//    }
 //
 //    println("\nComments:")
 //    for (comment in root.get("optionInRoot")!!.comments)
@@ -247,9 +249,6 @@ fun main(args: Array<String>) {
 
 
 
-}
-inline fun <reified T: Any> Collection<T>.genericType(): Class<T> {
-    return T::class.java
 }
 
 val test: String = "\n" +

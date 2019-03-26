@@ -33,7 +33,7 @@ object DefaultTypeAdapter : TypeAdapter<Any> {
             if (adapter == null) {
                 root.add(node = (DefaultTypeAdapter.toBcon(bcon, value, root, name, childComments, if (generic != null) generic::class.java else null) as OrphanNode).toCategory(name, childComments, root))
             } else
-                root.add(node = adapter.toBcon(bcon, value, root, name, childComments, if (generic != null) generic::class.java else null))
+                root.add(node = adapter.toBcon(bcon, value, root, name, childComments, if (generic != null) Class.forName(generic) else null))
         }
         return root
     }
